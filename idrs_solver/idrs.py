@@ -76,10 +76,10 @@ def idrs(A, b, x0=None, tol=1e-5, s=4, maxit=None, xtype=None, M=None, callback=
         This parameter has been superseded by LinearOperator.
     M : {sparse matrix, dense matrix, LinearOperator}
         Inverse of the preconditioner of A.  M should approximate the
-        inverse of A and be easy to solve for (see Notes).  Effective
-        preconditioning dramatically improves the rate of convergence,
-        which implies that fewer iterations are needed to reach a given
-        error tolerance.  By default, no preconditioner is used.
+        inverse of A and be easy to solve.  Effective preconditioning 
+        dramatically improves the rate of convergence, which implies that 
+        fewer iterations are needed to reach a given error tolerance.  
+        By default, no preconditioner is used.
     callback : function
         User-supplied function to call after each iteration.  It is called
         as callback(xk), where xk is the current solution vector.
