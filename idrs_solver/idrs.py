@@ -116,7 +116,7 @@ def idrs(A, b, x0=None, tol=1e-5, s=4, maxit=None, xtype=None, M=None, callback=
 #   Check for zero rhs:
     if bnrm == 0.0:
         #   Solution is null-vector
-        return postprocess(np.zeros(size, dtype=xtype)), 0
+        return postprocess(np.zeros(n, dtype=xtype)), 0
 #   Compute initial residual:
     r = b - matvec(x)
     rnrm = norm(r)
