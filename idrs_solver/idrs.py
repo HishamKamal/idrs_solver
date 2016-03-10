@@ -175,8 +175,7 @@ def idrs(A, b, x0=None, tol=1e-5, s=4, maxiter=None, xtype=None, M=None, callbac
                 f[k + 1:s]  = axpy(Ms[k + 1:s, k], f[k + 1:s], None, -beta) 
 # Now we have sufficient vectors in G_j to compute residual in G_j+1
 # Note: r is already perpendicular to P so v = r
-        if rnrm < tolb or iter >= maxiter:
-            break
+
 #       Preconditioning:
         v = psolve(r)
 #       Matrix-vector product
