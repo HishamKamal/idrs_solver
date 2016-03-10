@@ -34,7 +34,7 @@ from scipy.sparse.linalg.isolve.utils import make_system
 __all__ = ['idrs']
 
 
-def idrs(A, b, x0=None, tol=1e-5, s=4, maxit=None, xtype=None, M=None, callback=None):
+def idrs(A, b, x0=None, tol=1e-5, s=4, maxiter=None, xtype=None, M=None, callback=None):
     """
     Use Induced Dimension Reduction iteration to solve A x = b.
     Parameters
@@ -98,8 +98,8 @@ def idrs(A, b, x0=None, tol=1e-5, s=4, maxit=None, xtype=None, M=None, callback=
     A, M, x, b, postprocess = make_system(A, M, x0, b, xtype)
 
     n = len(b)
-    if maxit is None:
-        maxit = 10 * n
+    if maxiter is None:
+        maxiter = n*10
 
     matvec = A.matvec
     psolve = M.matvec
@@ -136,7 +136,7 @@ def idrs(A, b, x0=None, tol=1e-5, s=4, maxit=None, xtype=None, M=None, callback=
     iter = 0
 
 #   Main iteration loop, build G-spaces:
-    while rnrm > tolb and iter < maxit:
+    while rnrm > tolb and iter < maxiter:
         #   New right-hand size for small system:
         f = P.dot(r)
         for k in range(0, s):
@@ -168,14 +168,14 @@ def idrs(A, b, x0=None, tol=1e-5, s=4, maxit=None, xtype=None, M=None, callback=
             if callback is not None:
                 callback(x)
             iter += 1
-            if rnrm < tolb or iter >= maxit:
+            if rnrm < tolb or iter >= maxiter:
                 break
 #           New f = P'*r (first k  components are zero)                
             if k < s - 1:
                 f[k + 1:s]  = axpy(Ms[k + 1:s, k], f[k + 1:s], None, -beta) 
 # Now we have sufficient vectors in G_j to compute residual in G_j+1
 # Note: r is already perpendicular to P so v = r
-        if rnrm < tolb or iter >= maxit:
+        if rnrm < tolb or iter >= maxiter:
             break
 #       Preconditioning:
         v = psolve(r)
