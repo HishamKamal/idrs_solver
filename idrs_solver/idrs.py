@@ -110,7 +110,7 @@ def idrs(A, b, x0=None, tol=1e-5, s=4, maxiter=None, xtype=None,
     np.random.seed(0)
     P = np.random.rand(s, n)
     bnrm = norm(b)
-    info = 1
+    info = 0
 
 #   Check for zero rhs:
     if bnrm == 0.0:
@@ -132,10 +132,10 @@ def idrs(A, b, x0=None, tol=1e-5, s=4, maxiter=None, xtype=None,
     U = np.zeros((n, s), dtype=xtype)
     Ms = np.eye(s, dtype=xtype)
     om = 1.0
-    iter = 0
+    iter_ = 0
 
 #   Main iteration loop, build G-spaces:
-    while rnrm > tolb and iter < maxiter:
+    while rnrm > tolb and iter_ < maxiter:
         #   New right-hand size for small system:
         f = P.dot(r)
         for k in xrange(s):
@@ -166,15 +166,15 @@ def idrs(A, b, x0=None, tol=1e-5, s=4, maxiter=None, xtype=None,
             rnrm = norm(r)
             if callback is not None:
                 callback(x)
-            iter += 1
-            if rnrm < tolb or iter >= maxiter:
+            iter_ += 1
+            if rnrm < tolb or iter_ >= maxiter:
                 break
 #           New f = P'*r (first k  components are zero)
             if k < s - 1:
                 f[k + 1:s] = axpy(Ms[k + 1:s, k], f[k + 1:s], None, -beta)
 # Now we have sufficient vectors in G_j to compute residual in G_j+1
 # Note: r is already perpendicular to P so v = r
-        if rnrm < tolb or iter >= maxiter:
+        if rnrm < tolb or iter_ >= maxiter:
             break
 #       Preconditioning:
         v = psolve(r)
@@ -194,9 +194,9 @@ def idrs(A, b, x0=None, tol=1e-5, s=4, maxiter=None, xtype=None,
         rnrm = norm(r)
         if callback is not None:
             callback(x)
-        iter += 1
+        iter_ += 1
 
-    if rnrm < tolb:
-    # info isn't set appropriately otherwise
-        info = iter
+    if rnrm > tolb:
+    # info isn't set appropriately otherwise        
+        info = iter_
     return postprocess(x), info
