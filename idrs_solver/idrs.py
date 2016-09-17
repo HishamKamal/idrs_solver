@@ -1,4 +1,4 @@
-# Copyright (c) 2015 Reinaldo Astudillo and Martin B. van Gijzen
+# Copyright (c) 2016 Reinaldo Astudillo and Martin B. van Gijzen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,25 +18,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-"""
-======================================================================
-Induced Dimension Reduction method [IDR(s)] for solving linear systems
-====================================================================== 
-Functions
----------
-    idrs - solves the linear system A x = b using IDR(s) method
-"""
+from __future__ import division, print_function, absolute_import
+
 import numpy as np
-from numpy.linalg import solve
+from scipy._lib.six import xrange
 from scipy.linalg import get_blas_funcs
 from scipy.sparse.linalg.isolve.utils import make_system
 
 __all__ = ['idrs']
 
 
-def idrs(A, b, x0=None, tol=1e-5, s=4, maxiter=None, xtype=None, M=None, callback=None):
+def idrs(A, b, x0=None, tol=1e-5, s=4, maxiter=None, xtype=None,
+         M=None, callback=None):
     """
-    Use Induced Dimension Reduction iteration to solve A x = b.
+    Solves the linear system Ax = b using the Induced Dimension Reduction
+    method IDR(s).
+
+    IDR(s) is a short-recurrences Krylov method proposed in [1].
+
     Parameters
     ----------
     A : {sparse matrix, dense matrix, LinearOperator}
@@ -60,12 +59,12 @@ def idrs(A, b, x0=None, tol=1e-5, s=4, maxiter=None, xtype=None, M=None, callbac
         Tolerance to achieve. The algorithm terminates when either the relative
         or the absolute residual is below `tol`.
     s : integer, optional
-        specifies the dimension of the shadow space. Norrmally, a higher 
+        specifies the dimension of the shadow space. Normally, a higher
         s gives faster convergence, but also makes the method more expensive.
         Default is 4.
     maxiter : integer, optional
-	Maximum number of iterations.  Iteration will stop after maxiter
-	steps even if the specified tolerance has not been achieved.
+        Maximum number of iterations.  Iteration will stop after maxiter
+        steps even if the specified tolerance has not been achieved.
     xtype : {'f','d','F','D'}
         This parameter is DEPRECATED --- avoid using it.
         The type of the result.  If None, then it will be determined from
@@ -76,19 +75,19 @@ def idrs(A, b, x0=None, tol=1e-5, s=4, maxiter=None, xtype=None, M=None, callbac
         This parameter has been superseded by LinearOperator.
     M : {sparse matrix, dense matrix, LinearOperator}
         Inverse of the preconditioner of A.  M should approximate the
-        inverse of A and be easy to solve.  Effective preconditioning 
-        dramatically improves the rate of convergence, which implies that 
-        fewer iterations are needed to reach a given error tolerance.  
+        inverse of A and be easy to solve.  Effective preconditioning
+        dramatically improves the rate of convergence, which implies that
+        fewer iterations are needed to reach a given error tolerance.
         By default, no preconditioner is used.
     callback : function
         User-supplied function to call after each iteration.  It is called
         as callback(xk), where xk is the current solution vector.
     References
     ----------
-    [1] IDR(s): a family of simple and fast algorithms for solving large 
+    [1] IDR(s): a family of simple and fast algorithms for solving large
         nonsymmetric linear systems. P. Sonneveld and M. B. van Gijzen
-        SIAM J. Sci. Comput. Vol. 31, No. 2, pp. 1035--1062, 2008 
-    [2] Algorithm 913: An Elegant IDR(s) Variant that Efficiently Exploits 
+        SIAM J. Sci. Comput. Vol. 31, No. 2, pp. 1035--1062, 2008
+    [2] Algorithm 913: An Elegant IDR(s) Variant that Efficiently Exploits
         Bi-orthogonality Properties. M. B. van Gijzen and P. Sonneveld
         ACM Trans. Math. Software,, Vol. 38, No. 1, pp. 5:1-5:19, 2011
     [3] This file is a translation of the following MATLAB implementation:
@@ -139,9 +138,9 @@ def idrs(A, b, x0=None, tol=1e-5, s=4, maxiter=None, xtype=None, M=None, callbac
     while rnrm > tolb and iter < maxiter:
         #   New right-hand size for small system:
         f = P.dot(r)
-        for k in range(0, s):
+        for k in xrange(s):
 #           Solve small system and make v orthogonal to P:
-            c = solve(Ms[k:s, k:s], f[k:s])
+            c = np.linalg.solve(Ms[k:s, k:s], f[k:s])
             v = r - G[:, k:s].dot(c)
 #           Preconditioning:
             v = psolve(v)
@@ -170,12 +169,13 @@ def idrs(A, b, x0=None, tol=1e-5, s=4, maxiter=None, xtype=None, M=None, callbac
             iter += 1
             if rnrm < tolb or iter >= maxiter:
                 break
-#           New f = P'*r (first k  components are zero)                
+#           New f = P'*r (first k  components are zero)
             if k < s - 1:
-                f[k + 1:s]  = axpy(Ms[k + 1:s, k], f[k + 1:s], None, -beta) 
+                f[k + 1:s] = axpy(Ms[k + 1:s, k], f[k + 1:s], None, -beta)
 # Now we have sufficient vectors in G_j to compute residual in G_j+1
 # Note: r is already perpendicular to P so v = r
-
+        if rnrm < tolb or iter >= maxiter:
+            break
 #       Preconditioning:
         v = psolve(r)
 #       Matrix-vector product
@@ -197,5 +197,6 @@ def idrs(A, b, x0=None, tol=1e-5, s=4, maxiter=None, xtype=None, M=None, callbac
         iter += 1
 
     if rnrm < tolb:
-        info = 0
+    # info isn't set appropriately otherwise
+        info = iter
     return postprocess(x), info
