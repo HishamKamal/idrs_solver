@@ -1,9 +1,9 @@
 # IDR(s) Solver in Python
-The Induced Dimension Reduction method (IDR(s)) is a short-recurrences Krylov method that
+The Induced Dimension Reduction method (IDR(s)) [1] is a short-recurrences Krylov method that
 solves the system of linear equation,
                                       Ax = b.
 This Python implementation is based on [2]. The interface of the idrs function is compatible
-with the Krylov method implemented in Scipy.
+with the Krylov methods implemented in Scipy.
 
       idrs(A, b, x0=None, tol=1e-5, s=4, maxit=None, xtype=None, M=None, callback=None)
 # Parameter
@@ -30,7 +30,7 @@ with the Krylov method implemented in Scipy.
         Tolerance to achieve. The algorithm terminates when either the relative
         or the absolute residual is below `tol`.
     s : integer, optional
-        specifies the dimension of the shadow space. Norrmally, a higher 
+        specifies the dimension of the shadow space. Normally, a higher 
         s gives faster convergence, but also makes the method more expensive.
         Default is 4.
     maxiter : integer, optional
