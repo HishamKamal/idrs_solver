@@ -36,8 +36,6 @@ with the Krylov methods implemented in Scipy.
         User-supplied function to call after each iteration.  It is called
         as callback(xk), where xk is the current solution vector.
 
-        .. versionadded:: 0.19.0
-
     Returns
     -------
     x : array or matrix
